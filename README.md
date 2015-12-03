@@ -12,6 +12,7 @@ Obtain a last.fm API key. Then run:
 $ LASTFM_KEY=yourapikey LASTFM_USER=yourlastfmuser ./support_the_artist
 # => Your most played album in the last month is "Have You In My Wilderness" by Julia Holter, which you've played 66 times.
      Buy the album and support the artist!
+```
 
 ### Roadmap
 
