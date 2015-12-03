@@ -40,7 +40,7 @@ func getListeningInfo(url string) []byte {
 func message(q Query) {
 	fmt.Println("Your most played album in the last month is \"" + q.Album.Title +
 		"\" by " + q.Album.Artist + ", which you've played " +
-		q.Album.PlayCount + " times.")
+		q.Album.PlayCount + " times.\nBuy the album and support the artist!")
 
 }
 
