@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -21,6 +22,9 @@ type Album struct {
 var lastFMAPIKey string = os.Getenv("LASTFM_KEY")
 
 const APIURL string = "http://ws.audioscrobbler.com/2.0/"
+const eventType string = "lastfm_api"
+
+var ifTTTAPIURL string = "https://maker.ifttt.com/trigger/" + eventType + "/with/key/" + os.Getenv("IFTTT_API_KEY")
 
 func perror(err error) {
 	if err != nil {
@@ -37,11 +41,18 @@ func getListeningInfo(url string) []byte {
 	return body
 }
 
-func message(q Query) {
-	fmt.Println("Your most played album in the last month is \"" + q.Album.Title +
-		"\" by " + q.Album.Artist + ", which you've played " +
-		q.Album.PlayCount + " times.\nBuy the album and support the artist!")
-
+func sendSMS(q Query) {
+	jsonReq := fmt.Sprintf(`{"value1":"%s","value2":"%s","value3":"%s"}`,
+		q.Album.Title, q.Album.Artist, q.Album.PlayCount)
+	jsonStr := []byte(jsonReq)
+	jsonBody := bytes.NewBuffer(jsonStr)
+	fmt.Println(ifTTTAPIURL)
+	req, _ := http.NewRequest("POST", ifTTTAPIURL, jsonBody)
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+	fmt.Println(resp.Status)
 }
 
 func main() {
@@ -49,5 +60,5 @@ func main() {
 		"&period=1month&limit=1&api_key=" + os.Getenv("LASTFM_KEY")
 	var q Query
 	xml.Unmarshal(getListeningInfo(url), &q)
-	message(q)
+	sendSMS(q)
 }
