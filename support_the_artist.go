@@ -41,17 +41,21 @@ func getListeningInfo(url string) []byte {
 	return body
 }
 
-func sendSMS(q Query) {
+func jsonBody(q Query) *bytes.Buffer {
 	jsonReq := fmt.Sprintf(`{"value1":"%s","value2":"%s","value3":"%s"}`,
 		q.Album.Title, q.Album.Artist, q.Album.PlayCount)
 	jsonStr := []byte(jsonReq)
-	jsonBody := bytes.NewBuffer(jsonStr)
-	fmt.Println(ifTTTAPIURL)
-	req, _ := http.NewRequest("POST", ifTTTAPIURL, jsonBody)
+	reqBody := bytes.NewBuffer(jsonStr)
+	return reqBody
+}
+
+func sendSMS(q Query) {
+	req, _ := http.NewRequest("POST", ifTTTAPIURL, jsonBody(q))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
 	defer resp.Body.Close()
+	perror(err)
 	fmt.Println(resp.Status)
 }
 
