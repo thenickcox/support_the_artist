@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Query struct {
@@ -19,12 +21,8 @@ type Album struct {
 	PlayCount string `xml:"playcount"`
 }
 
-var lastFMAPIKey string = os.Getenv("LASTFM_KEY")
-
 const APIURL string = "http://ws.audioscrobbler.com/2.0/"
 const eventType string = "lastfm_api"
-
-var ifTTTAPIURL string = "https://maker.ifttt.com/trigger/" + eventType + "/with/key/" + os.Getenv("IFTTT_API_KEY")
 
 func perror(err error) {
 	if err != nil {
@@ -50,6 +48,8 @@ func jsonBody(q Query) *bytes.Buffer {
 }
 
 func sendSMS(q Query) {
+	ifTTTAPIURL := "https://maker.ifttt.com/trigger/" + eventType +
+		"/with/key/" + os.Getenv("IFTTT_API_KEY")
 	req, _ := http.NewRequest("POST", ifTTTAPIURL, jsonBody(q))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
@@ -60,6 +60,8 @@ func sendSMS(q Query) {
 }
 
 func main() {
+	err := godotenv.Load()
+	perror(err)
 	url := APIURL + "?method=user.getTopAlbums&user=" + os.Getenv("LASTFM_USER") +
 		"&period=1month&limit=1&api_key=" + os.Getenv("LASTFM_KEY")
 	var q Query
